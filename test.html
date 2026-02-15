@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💝 Для Эльвинки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* Floating hearts background */
+        .heart-bg {
+            position: absolute;
+            font-size: 25px;
+            opacity: 0.15;
+            animation: float 8s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-40px) rotate(15deg); }
+        }
+
+        .container {
+            background: rgba(30, 30, 46, 0.95);
+            border: 2px solid rgba(255, 105, 180, 0.3);
+            border-radius: 25px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #ff6b9d;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+        }
+
+        .emoji {
+            font-size: 3.5em;
+            margin: 15px 0;
+            animation: pulse 1.5s infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 157, 0.6));
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #e0e0e0;
+            margin: 25px 0;
+            font-weight: 600;
+        }
+
+        .name {
+            color: #ff6b9d;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+        }
+
+        .buttons-container {
+            position: relative;
+            height: 250px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        button {
+            font-size: 1.1em;
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: absolute;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.5);
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        #yesBtn:active {
+            transform: translateX(-50%) scale(0.98);
+        }
+
+        #noBtn {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: #a0aec0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        #noBtn:active {
+            transform: translateX(-50%) scale(0.98);
+        }
+
+        .celebration {
+            display: none;
+        }
+
+        .celebration.active {
+            display: block;
+            animation: fadeIn 0.6s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .love-message {
+            font-size: 1.2em;
+            color: #ff6b9d;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+            pointer-events: none;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 35px 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .emoji {
+                font-size: 3em;
+            }
+
+            .question {
+                font-size: 1.15em;
+            }
+
+            button {
+                font-size: 1em;
+                padding: 15px 35px;
+            }
+
+            .buttons-container {
+                height: 220px;
+            }
+
+            .love-message {
+                font-size: 1.1em;
+            }
+        }
+
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .emoji {
+                font-size: 2.5em;
+            }
+
+            button {
+                font-size: 0.95em;
+                padding: 14px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <h1>💝 Для Эльвинки 💝</h1>
+        <div class="emoji">😍</div>
+        <p class="question">
+            Ты будешь моей валентинкой?
+        </p>
+
+        <div class="buttons-container" id="btnContainer">
+            <button id="yesBtn">Да! 💖</button>
+            <button id="noBtn">Нет</button>
+        </div>
+    </div>
+
+    <div class="container celebration" id="celebration">
+        <h1>🎉 Ура! 🎉</h1>
+        <div class="emoji">💕</div>
+        <p class="love-message">
+            <span class="name">Эльвинка</span>, я знал, что ты согласишься! 🥰<br>
+            Ты самая лучшая! 💖<br>
+            С днём Святого Валентина! 🌹
+        </p>
+    </div>
+
+    <script>
+        // Create floating hearts background
+        for (let i = 0; i < 12; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-bg';
+            heart.innerHTML = '💖';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.top = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 4 + 's';
+            document.body.appendChild(heart);
+        }
+
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainContainer = document.getElementById('mainContainer');
+        const celebration = document.getElementById('celebration');
+        const btnContainer = document.getElementById('btnContainer');
+
+        let noClickCount = 0;
+        let yesFontSize = 1.1;
+        let noFontSize = 1.1;
+
+        // Array of funny messages for "No" button
+        const noMessages = [
+            'Нет',
+            'Точно нет?',
+            'Подумай ещё 🤔',
+            'Ну пожалуйста 🥺',
+            'Не упрямься',
+            'Ну же!',
+            'Последний шанс',
+            'Серьёзно??',
+            'Эльвинка...',
+            'Ну ладно 😢'
+        ];
+
+        yesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Create confetti
+            for (let i = 0; i < 120; i++) {
+                setTimeout(() => createConfetti(), i * 20);
+            }
+
+            // Show celebration
+            mainContainer.style.display = 'none';
+            celebration.classList.add('active');
+        });
+
+        noBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            noClickCount++;
+
+            // Increase Yes button size
+            yesFontSize += 0.25;
+            yesBtn.style.fontSize = yesFontSize + 'em';
+            const newPadding = Math.min(25, 18 + noClickCount * 2);
+            const newPaddingX = Math.min(70, 45 + noClickCount * 4);
+            yesBtn.style.padding = newPadding + 'px ' + newPaddingX + 'px';
+
+            // Decrease No button size
+            noFontSize -= 0.12;
+            if (noFontSize < 0.4) noFontSize = 0.4;
+            noBtn.style.fontSize = noFontSize + 'em';
+            const smallPadding = Math.max(6, 18 - noClickCount * 2);
+            const smallPaddingX = Math.max(15, 45 - noClickCount * 4);
+            noBtn.style.padding = smallPadding + 'px ' + smallPaddingX + 'px';
+
+            // Change No button text
+            if (noClickCount < noMessages.length) {
+                noBtn.textContent = noMessages[noClickCount];
+            }
+
+            // Get container and button dimensions
+            const containerRect = btnContainer.getBoundingClientRect();
+            const noBtnRect = noBtn.getBoundingClientRect();
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+
+            // Calculate safe zone (avoid overlapping with Yes button)
+            const yesLeft = yesBtnRect.left - containerRect.left;
+            const yesRight = yesBtnRect.right - containerRect.left;
+            const yesTop = yesBtnRect.top - containerRect.top;
+            const yesBottom = yesBtnRect.bottom - containerRect.top;
+
+            // Calculate available space
+            const maxX = containerRect.width - noBtnRect.width;
+            const maxY = containerRect.height - noBtnRect.height;
+
+            let randomX, randomY;
+            let attempts = 0;
+
+            // Find position that doesn't overlap with Yes button
+            do {
+                randomX = Math.random() * maxX;
+                randomY = Math.random() * maxY;
+                attempts++;
+
+                const noLeft = randomX;
+                const noRight = randomX + noBtnRect.width;
+                const noTop = randomY;
+                const noBottom = randomY + noBtnRect.height;
+
+                // Check if no overlap
+                const noOverlap = (
+                    noRight < yesLeft - 10 ||
+                    noLeft > yesRight + 10 ||
+                    noBottom < yesTop - 10 ||
+                    noTop > yesBottom + 10
+                );
+
+                if (noOverlap || attempts > 20) break;
+
+            } while (true);
+
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+            noBtn.style.transform = 'none';
+
+            // Add shake animation to No button
+            noBtn.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                noBtn.style.animation = '';
+            }, 500);
+
+            // After 5 clicks, make No button almost invisible
+            if (noClickCount >= 5) {
+                noBtn.style.opacity = Math.max(0.15, 1 - (noClickCount - 5) * 0.12);
+            }
+        });
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-8px) rotate(-5deg); }
+                75% { transform: translateX(8px) rotate(5deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = -20 + 'px';
+
+            const colors = ['#ff6b9d', '#c44569', '#ffa502', '#ff6348', '#ff4757', '#ff6b81'];
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+            document.body.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.remove();
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
