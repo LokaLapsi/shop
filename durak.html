@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дурак</title>
+    <title>Дурак с ИИ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -13,220 +13,552 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-            padding: 20px;
+            background: var(--tg-theme-bg-color, #1a1a1a);
+            color: var(--tg-theme-text-color, #fff);
+            padding: 15px;
+            min-height: 100vh;
+        }
+        .container {
             max-width: 600px;
             margin: 0 auto;
         }
-        .game-info {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        .header {
+            background: var(--tg-theme-secondary-bg-color, #2a2a2a);
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .trump {
-            font-size: 32px;
+        .trump-display {
+            font-size: 36px;
             text-align: center;
-            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
         }
-        .table {
-            background: #2d5016;
+        .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+        .table-area {
+            background: linear-gradient(135deg, #1e4620 0%, #2d5016 100%);
             border-radius: 15px;
             padding: 20px;
-            min-height: 150px;
-            margin-bottom: 20px;
+            min-height: 180px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
         }
         .table-cards {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
+            align-items: center;
         }
         .card-pair {
             display: flex;
-            gap: 5px;
+            gap: 8px;
             align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .arrow {
+            color: #ffd700;
+            font-size: 20px;
         }
         .card {
-            background: white;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
             border: 2px solid #333;
-            border-radius: 8px;
-            padding: 10px 15px;
-            font-size: 24px;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 28px;
+            font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
-            min-width: 50px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            user-select: none;
+            min-width: 55px;
             text-align: center;
         }
-        .card:hover:not(.disabled) {
-            transform: translateY(-5px);
+        .card:hover:not(.disabled):not(.table-card) {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.4);
+        }
+        .card:active:not(.disabled) {
+            transform: translateY(-4px);
         }
         .card.disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            filter: grayscale(0.5);
         }
         .card.red {
             color: #d32f2f;
         }
         .card.black {
+            color: #1a1a1a;
+        }
+        .card.empty {
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.2);
+        }
+        .status-bar {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            background: var(--tg-theme-secondary-bg-color, #2a2a2a);
+        }
+        .status-bar.attack {
+            background: #d32f2f;
+        }
+        .status-bar.defend {
+            background: #1976d2;
+        }
+        .status-bar.gameover {
+            background: #ffd700;
             color: #000;
         }
-        .hand {
+        .hand-area {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--tg-theme-secondary-bg-color, #2a2a2a);
+            border-radius: 12px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
         }
         .btn {
             background: var(--tg-theme-button-color, #0088cc);
             color: var(--tg-theme-button-text-color, #fff);
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            margin: 5px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.3);
         }
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
         }
-        .status {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin: 15px 0;
+        .btn.danger {
+            background: #d32f2f;
         }
-        .loading {
+        .btn.success {
+            background: #388e3c;
+        }
+        .ai-thinking {
             text-align: center;
-            padding: 20px;
+            padding: 10px;
+            color: #ffd700;
+            font-style: italic;
+        }
+        .empty-table {
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-style: italic;
+            padding: 30px;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div class="loading">Загрузка игры...</div>
+    <div class="container">
+        <div class="header">
+            <div>
+                <div class="trump-display" id="trump">🃏</div>
+                <div style="text-align: center; font-size: 12px; opacity: 0.7;">Козырь</div>
+            </div>
+            <div class="stats">
+                <div>
+                    <div style="font-size: 20px;" id="deckCount">36</div>
+                    <div style="opacity: 0.7; font-size: 12px;">Колода</div>
+                </div>
+                <div>
+                    <div style="font-size: 20px;" id="aiCount">6</div>
+                    <div style="opacity: 0.7; font-size: 12px;">У ИИ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar" id="status">Загрузка...</div>
+
+        <div class="table-area">
+            <div class="table-cards" id="tableCards">
+                <div class="empty-table">Стол пуст</div>
+            </div>
+        </div>
+
+        <div class="ai-thinking" id="aiThinking" style="display: none;">
+            🤖 ИИ думает...
+        </div>
+
+        <div class="actions" id="actions"></div>
+
+        <div class="hand-area" id="playerHand"></div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
 
-        let gameState = null;
-        const API_URL = 'https://ваш-сервер.com'; // Замените на ваш сервер
+        // ========== ИГРА В ДУРАКА ==========
+        class Card {
+            static SUITS = ['♠', '♥', '♦', '♣'];
+            static RANKS = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
-        async function startGame() {
-            try {
-                const response = await fetch(`${API_URL}/start`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: tg.initDataUnsafe?.user?.id || 'test'
-                    })
-                });
-                gameState = await response.json();
-                renderGame();
-            } catch (error) {
-                document.getElementById('app').innerHTML = '<div class="status">Ошибка подключения к серверу</div>';
+            constructor(suit, rank) {
+                this.suit = suit;
+                this.rank = rank;
+                this.value = Card.RANKS.indexOf(rank);
+            }
+
+            toString() {
+                return `${this.rank}${this.suit}`;
+            }
+
+            beats(other, trumpSuit) {
+                if (this.suit === other.suit) {
+                    return this.value > other.value;
+                }
+                return this.suit === trumpSuit;
+            }
+
+            isRed() {
+                return this.suit === '♥' || this.suit === '♦';
             }
         }
 
-        async function makeMove(action, cardIndex = null) {
-            try {
-                const response = await fetch(`${API_URL}/move`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: tg.initDataUnsafe?.user?.id || 'test',
-                        action: action,
-                        card_index: cardIndex
-                    })
-                });
-                gameState = await response.json();
-                renderGame();
-            } catch (error) {
-                alert('Ошибка хода');
-            }
-        }
-
-        function getCardColor(suit) {
-            return (suit === '♥' || suit === '♦') ? 'red' : 'black';
-        }
-
-        function renderGame() {
-            if (!gameState) return;
-
-            const app = document.getElementById('app');
-            
-            let html = `
-                <div class="game-info">
-                    <div>Козырь: <span class="trump">${gameState.trump}</span></div>
-                    <div>Карт в колоде: ${gameState.deck_count}</div>
-                    <div>Карт у ИИ: ${gameState.ai_cards_count}</div>
-                </div>
-
-                <div class="status">${gameState.status}</div>
-
-                <div class="table">
-                    <div class="table-cards">
-            `;
-
-            if (gameState.table && gameState.table.length > 0) {
-                gameState.table.forEach(pair => {
-                    html += `<div class="card-pair">`;
-                    html += `<div class="card ${getCardColor(pair.attack.suit)}">${pair.attack.rank}${pair.attack.suit}</div>`;
-                    if (pair.defense) {
-                        html += `<div>←</div>`;
-                        html += `<div class="card ${getCardColor(pair.defense.suit)}">${pair.defense.rank}${pair.defense.suit}</div>`;
-                    } else {
-                        html += `<div class="card disabled">?</div>`;
+        class DurakGame {
+            constructor() {
+                this.deck = [];
+                for (let suit of Card.SUITS) {
+                    for (let rank of Card.RANKS) {
+                        this.deck.push(new Card(suit, rank));
                     }
-                    html += `</div>`;
-                });
-            } else {
-                html += '<div style="color: rgba(255,255,255,0.5); text-align: center;">Стол пуст</div>';
+                }
+                this.shuffle(this.deck);
+
+                this.trump = this.deck[this.deck.length - 1];
+                this.playerHand = [];
+                this.aiHand = [];
+                this.table = [];
+                this.attackerIsPlayer = true;
+                this.gameOver = false;
+                this.winner = null;
+
+                for (let i = 0; i < 6; i++) {
+                    this.playerHand.push(this.deck.pop());
+                    this.aiHand.push(this.deck.pop());
+                }
             }
 
-            html += `</div></div>`;
-
-            if (gameState.game_over) {
-                html += `<div class="status">${gameState.winner}</div>`;
-                html += `<button class="btn" onclick="startGame()">Новая игра</button>`;
-            } else {
-                // Кнопки действий
-                html += '<div style="text-align: center; margin: 15px 0;">';
-                if (gameState.can_take) {
-                    html += '<button class="btn" onclick="makeMove(\'take\')">🛑 Беру</button>';
+            shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
                 }
-                if (gameState.can_finish) {
-                    html += '<button class="btn" onclick="makeMove(\'finish\')">✅ Бито</button>';
-                }
-                html += '</div>';
-
-                // Карты игрока
-                html += '<div class="hand">';
-                gameState.player_hand.forEach((card, index) => {
-                    const disabled = !gameState.valid_cards.includes(index) ? 'disabled' : '';
-                    html += `
-                        <div class="card ${getCardColor(card.suit)} ${disabled}" 
-                             onclick="${disabled ? '' : `makeMove('play', ${index})`}">
-                            ${card.rank}${card.suit}
-                        </div>
-                    `;
-                });
-                html += '</div>';
             }
 
-            app.innerHTML = html;
+            getValidMoves(isPlayer) {
+                const hand = isPlayer ? this.playerHand : this.aiHand;
+
+                if (this.table.length === 0) {
+                    return hand.map((_, i) => i);
+                }
+
+                if (isPlayer === this.attackerIsPlayer) {
+                    // Атака
+                    const tableRanks = new Set();
+                    this.table.forEach(pair => {
+                        if (pair.attack) tableRanks.add(pair.attack.rank);
+                        if (pair.defense) tableRanks.add(pair.defense.rank);
+                    });
+                    return hand.map((c, i) => tableRanks.has(c.rank) ? i : -1).filter(i => i >= 0);
+                } else {
+                    // Защита
+                    const undefended = this.table.find(p => !p.defense);
+                    if (!undefended) return [];
+                    return hand.map((c, i) => c.beats(undefended.attack, this.trump.suit) ? i : -1).filter(i => i >= 0);
+                }
+            }
+
+            playCard(cardIndex, isPlayer) {
+                const hand = isPlayer ? this.playerHand : this.aiHand;
+                const card = hand.splice(cardIndex, 1)[0];
+
+                if (isPlayer === this.attackerIsPlayer) {
+                    this.table.push({ attack: card, defense: null });
+                } else {
+                    const pair = this.table.find(p => !p.defense);
+                    if (pair) pair.defense = card;
+                }
+            }
+
+            canFinish() {
+                return this.table.length > 0 && this.table.every(p => p.defense);
+            }
+
+            endTurn(defenderTakes = false) {
+                if (defenderTakes) {
+                    const cards = [];
+                    this.table.forEach(p => {
+                        cards.push(p.attack);
+                        if (p.defense) cards.push(p.defense);
+                    });
+                    if (this.attackerIsPlayer) {
+                        this.aiHand.push(...cards);
+                    } else {
+                        this.playerHand.push(...cards);
+                    }
+                } else {
+                    this.attackerIsPlayer = !this.attackerIsPlayer;
+                }
+
+                this.table = [];
+                this.refillHands();
+                this.checkGameOver();
+            }
+
+            refillHands() {
+                const attacker = this.attackerIsPlayer ? this.playerHand : this.aiHand;
+                const defender = this.attackerIsPlayer ? this.aiHand : this.playerHand;
+
+                while (attacker.length < 6 && this.deck.length > 0) {
+                    attacker.push(this.deck.pop());
+                }
+                while (defender.length < 6 && this.deck.length > 0) {
+                    defender.push(this.deck.pop());
+                }
+            }
+
+            checkGameOver() {
+                if (this.deck.length === 0) {
+                    if (this.playerHand.length === 0) {
+                        this.gameOver = true;
+                        this.winner = 'player';
+                    } else if (this.aiHand.length === 0) {
+                        this.gameOver = true;
+                        this.winner = 'ai';
+                    }
+                }
+            }
+
+            // Простой ИИ с эвристиками
+            aiMove() {
+                const moves = this.getValidMoves(false);
+                if (moves.length === 0) return null;
+
+                if (this.attackerIsPlayer) {
+                    // Защита: бить самой слабой картой
+                    const undefended = this.table.find(p => !p.defense);
+                    let bestMove = moves[0];
+                    let minValue = this.aiHand[bestMove].value;
+                    
+                    for (let i of moves) {
+                        const card = this.aiHand[i];
+                        const isTrump = card.suit === this.trump.suit;
+                        const attackIsTrump = undefended.attack.suit === this.trump.suit;
+                        
+                        if (!isTrump && attackIsTrump) continue; // Не бить козырем не козырь
+                        if (card.value < minValue) {
+                            minValue = card.value;
+                            bestMove = i;
+                        }
+                    }
+                    return bestMove;
+                } else {
+                    // Атака: ходить самой старшей картой
+                    let bestMove = moves[0];
+                    let maxValue = this.aiHand[bestMove].value;
+                    
+                    for (let i of moves) {
+                        if (this.aiHand[i].value > maxValue) {
+                            maxValue = this.aiHand[i].value;
+                            bestMove = i;
+                        }
+                    }
+                    return bestMove;
+                }
+            }
         }
 
-        // Запуск игры при загрузке
+        // ========== UI ==========
+        let game = null;
+        let isProcessing = false;
+
+        function startGame() {
+            game = new DurakGame();
+            isProcessing = false;
+            render();
+        }
+
+        function render() {
+            // Козырь и статистика
+            document.getElementById('trump').textContent = game.trump.toString();
+            document.getElementById('deckCount').textContent = game.deck.length;
+            document.getElementById('aiCount').textContent = game.aiHand.length;
+
+            // Статус
+            const statusEl = document.getElementById('status');
+            if (game.gameOver) {
+                statusEl.className = 'status-bar gameover';
+                statusEl.textContent = game.winner === 'player' ? '🎉 Вы победили!' : '😢 ИИ победил';
+            } else if (game.attackerIsPlayer) {
+                statusEl.className = 'status-bar attack';
+                statusEl.textContent = '🔴 Ваш ход - Атака';
+            } else {
+                statusEl.className = 'status-bar defend';
+                statusEl.textContent = '🔵 Ваш ход - Защита';
+            }
+
+            // Стол
+            const tableEl = document.getElementById('tableCards');
+            if (game.table.length === 0) {
+                tableEl.innerHTML = '<div class="empty-table">Стол пуст</div>';
+            } else {
+                tableEl.innerHTML = game.table.map(pair => `
+                    <div class="card-pair">
+                        <div class="card table-card ${pair.attack.isRed() ? 'red' : 'black'}">
+                            ${pair.attack.toString()}
+                        </div>
+                        <span class="arrow">←</span>
+                        <div class="card table-card ${pair.defense ? (pair.defense.isRed() ? 'red' : 'black') : 'empty'}">
+                            ${pair.defense ? pair.defense.toString() : '?'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Кнопки действий
+            const actionsEl = document.getElementById('actions');
+            if (game.gameOver) {
+                actionsEl.innerHTML = '<button class="btn" onclick="startGame()">🔄 Новая игра</button>';
+            } else {
+                let html = '';
+                if (!game.attackerIsPlayer && game.table.length > 0) {
+                    html += '<button class="btn danger" onclick="takeCards()">🛑 Беру</button>';
+                }
+                if (game.attackerIsPlayer && game.canFinish()) {
+                    html += '<button class="btn success" onclick="finishAttack()">✅ Бито</button>';
+                }
+                actionsEl.innerHTML = html;
+            }
+
+            // Карты игрока
+            const validMoves = game.getValidMoves(true);
+            const handEl = document.getElementById('playerHand');
+            handEl.innerHTML = game.playerHand.map((card, i) => {
+                const isValid = validMoves.includes(i);
+                return `
+                    <div class="card ${card.isRed() ? 'red' : 'black'} ${isValid ? '' : 'disabled'}" 
+                         onclick="${isValid && !isProcessing ? `playCard(${i})` : ''}">
+                        ${card.toString()}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function playCard(index) {
+            if (isProcessing || game.gameOver) return;
+            isProcessing = true;
+
+            game.playCard(index, true);
+            render();
+
+            await sleep(500);
+            await aiTurn();
+
+            isProcessing = false;
+        }
+
+        async function takeCards() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            game.endTurn(true);
+            render();
+
+            await sleep(500);
+            if (!game.gameOver && game.attackerIsPlayer) {
+                await aiTurn();
+            }
+
+            isProcessing = false;
+        }
+
+        async function finishAttack() {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            game.endTurn(false);
+            render();
+
+            await sleep(500);
+            if (!game.gameOver && game.attackerIsPlayer) {
+                await aiTurn();
+            }
+
+            isProcessing = false;
+        }
+
+        async function aiTurn() {
+            document.getElementById('aiThinking').style.display = 'block';
+            
+            while (!game.gameOver) {
+                await sleep(800);
+                
+                const move = game.aiMove();
+                if (move === null) {
+                    game.endTurn(true);
+                    render();
+                    break;
+                }
+
+                game.playCard(move, false);
+                render();
+
+                if (game.canFinish() && !game.attackerIsPlayer) {
+                    await sleep(500);
+                    game.endTurn(false);
+                    render();
+                    break;
+                }
+
+                if (game.attackerIsPlayer) {
+                    break; // Ход игрока
+                }
+            }
+
+            document.getElementById('aiThinking').style.display = 'none';
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Запуск
         startGame();
     </script>
 </body>
